@@ -1,5 +1,7 @@
-use crate::structs::VChipRes;
+use crate::enums::DestroyVChipMode;
+use crate::structs::{SingleDeviceId, VChipRes};
 use crate::DCMI;
+use std::ops::Not;
 
 #[test]
 fn test_get_card_list() {
@@ -62,17 +64,15 @@ fn test_destroy_vchip() {
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
     let chip = chips.first().unwrap();
     test_create_vchip();
-    chip.destroy_virtual_chip(65535).unwrap();
+    let destroy_mode = DestroyVChipMode::SingleDevice(SingleDeviceId::new(100));
+    chip.destroy_virtual_chip(destroy_mode).unwrap();
 }
 
 #[test]
 fn test_chip_mod() {
     let dcmi = DCMI::init().unwrap();
-    let anti_mode = match dcmi.get_vchip_recover_mode().unwrap() {
-        0 => 1u32,
-        _ => 0u32,
-    };
+    let anti_mode = dcmi.get_vchip_recover_mode().unwrap().not();
     dcmi.set_vchip_recover_mode(anti_mode).unwrap();
-    let new_mode = (dcmi.get_vchip_recover_mode().unwrap() != 0) as u32;
+    let new_mode = dcmi.get_vchip_recover_mode().unwrap();
     assert_eq!(anti_mode, new_mode);
 }

@@ -2,6 +2,7 @@
 
 use hw_dcmi_sys::bindings as ffi;
 
+use crate::structs::SingleDeviceId;
 #[cfg(feature = "serde")]
 use serde_derive::{Deserialize, Serialize};
 
@@ -241,6 +242,35 @@ impl UtilizationType {
             UtilizationType::DDR => 8,
             UtilizationType::HbmBandwidth => 10,
             UtilizationType::VectorCore => 12,
+        }
+    }
+}
+
+/// VChip power splitting mode
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum VChipPowerSplittingMode {
+    /// Container
+    Container,
+    /// VirtualMachine
+    VM,
+}
+
+/// Destroy VChip mode
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub enum DestroyVChipMode {
+    /// Single device
+    SingleDevice(SingleDeviceId),
+    /// All devices
+    AllDevices,
+}
+
+impl DestroyVChipMode {
+    pub(crate) fn to_raw_param(&self) -> u32 {
+        match self {
+            DestroyVChipMode::SingleDevice(id) => id.id,
+            DestroyVChipMode::AllDevices => 65535,
         }
     }
 }

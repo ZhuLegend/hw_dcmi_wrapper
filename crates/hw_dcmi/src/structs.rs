@@ -517,3 +517,26 @@ impl From<ffi::dcmi_create_vdev_out> for VChipOutput {
         }
     }
 }
+
+/// Single device ID
+///
+/// Note:
+/// ID cannot be 65535
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct SingleDeviceId {
+    /// ID
+    pub id: u32,
+}
+
+impl SingleDeviceId {
+    /// Create a new SingleDeviceId
+    pub fn new(id: u32) -> Self {
+        let id = match id {
+            65535 => Err("ID cannot be 65535"),
+            _ => Ok(id),
+        }
+        .unwrap();
+        SingleDeviceId { id }
+    }
+}

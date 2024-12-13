@@ -22,7 +22,7 @@
 #![warn(missing_docs)]
 
 use crate::device::Card;
-use crate::enums::HealthState;
+use crate::enums::{HealthState, VChipPowerSplittingMode};
 use crate::error::{dcmi_try, DCMIResult};
 
 use hw_dcmi_sys::bindings as ffi;
@@ -240,27 +240,38 @@ impl DCMI {
     ///
     /// # Note
     /// make sure that no vchip is created before calling this function
-    pub fn set_vchip_mode(&self, mode: i32) -> DCMIResult<i32> {
-        call_dcmi_function!(dcmi_set_vdevice_mode, self.lib, mode);
-        Ok(mode)
+    pub fn set_vchip_mode(&self, mode: VChipPowerSplittingMode) -> DCMIResult<()> {
+        call_dcmi_function!(
+            dcmi_set_vdevice_mode,
+            self.lib,
+            match mode {
+                VChipPowerSplittingMode::Container => 0,
+                VChipPowerSplittingMode::VM => 1,
+            }
+        );
+        Ok(())
     }
 
     /// Query the computing power splitting mode
     ///
     /// # Returns
     /// computing power splitting mode
-    pub fn get_vchip_mode(&self) -> DCMIResult<i32> {
+    pub fn get_vchip_mode(&self) -> DCMIResult<VChipPowerSplittingMode> {
         let mut mode = 0i32;
         call_dcmi_function!(dcmi_get_vdevice_mode, self.lib, &mut mode);
-        Ok(mode)
+        Ok(match mode {
+            0 => VChipPowerSplittingMode::Container,
+            1 => VChipPowerSplittingMode::VM,
+            _ => unreachable!("Not mentioned in the reference manual"),
+        })
     }
 
     /// Set the vchip configuration recover mode
     ///
     /// # Parameters
     /// - mode: vchip configuration recover mode (0: disable, 1: enable)
-    pub fn set_vchip_recover_mode(&self, mode: u32) -> DCMIResult<()> {
-        call_dcmi_function!(dcmi_set_vnpu_config_recover_mode, self.lib, mode);
+    pub fn set_vchip_recover_mode(&self, mode: bool) -> DCMIResult<()> {
+        call_dcmi_function!(dcmi_set_vnpu_config_recover_mode, self.lib, mode as u32);
         Ok(())
     }
 
@@ -268,9 +279,13 @@ impl DCMI {
     ///
     /// # Returns
     /// vchip configuration recover mode (0: disable, 1: enable)
-    pub fn get_vchip_recover_mode(&self) -> DCMIResult<u32> {
+    pub fn get_vchip_recover_mode(&self) -> DCMIResult<bool> {
         let mut mode = 0u32;
         call_dcmi_function!(dcmi_get_vnpu_config_recover_mode, self.lib, &mut mode);
-        Ok(mode)
+        Ok(match mode {
+            0 => false,
+            1 => true,
+            _ => unreachable!("Not mentioned in the reference manual"),
+        })
     }
 }
