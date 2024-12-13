@@ -6,7 +6,7 @@ use crate::structs::{
     AICPUInfo, AICoreInfo, BoardInfo, ChipInfo, ChipPCIEErrorRate, DieInfo, DomainPCIEInfo,
     ECCInfo, ELabelInfo, FlashInfo, HBMInfo, MemoryInfo, PCIEInfo, VChipOutput, VChipRes,
 };
-use crate::{call_dcmi_function, check_value, DCMI};
+use crate::DCMI;
 #[cfg(not(feature = "load_dynamic"))]
 use hw_dcmi_sys::bindings as ffi;
 #[cfg(feature = "serde")]
@@ -722,7 +722,7 @@ impl Chip<'_, '_> {
             self.card.dcmi.lib,
             self.card.id as i32,
             self.id as i32,
-            target.into(),
+            target.to_raw_value(),
             &mut utilization_rate
         );
 

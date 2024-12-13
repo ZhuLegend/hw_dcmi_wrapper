@@ -85,10 +85,11 @@ impl_from_pcie_info!(ffi::dcmi_pcie_info, PCIEInfo);
 impl_from_pcie_info!(ffi::dcmi_pcie_info_all, PCIEInfo);
 
 /// PCIE information with domain
+#[non_exhaustive]
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[non_exhaustive]
 pub struct DomainPCIEInfo {
+    /// PCIE information
     pub pcie_info: PCIEInfo,
     /// Domain
     pub domain: i32,
@@ -176,7 +177,10 @@ impl From<ffi::dcmi_elabel_info> for ELabelInfo {
 }
 
 /// Die ID
+#[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct DieInfo {
+    /// SOC die
     pub soc_die: [u32; ffi::DIE_ID_COUNT as usize],
 }
 
@@ -188,6 +192,9 @@ impl From<ffi::dcmi_die_id> for DieInfo {
     }
 }
 
+/// Flash information
+#[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct FlashInfo {
     /// Flash ID
     pub flash_id: u64,
@@ -220,6 +227,8 @@ impl From<ffi::dcmi_flash_info> for FlashInfo {
 }
 
 /// AI core information
+#[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct AICoreInfo {
     /// Frequency, unit: MHz
     pub frequency: u32,
@@ -237,6 +246,8 @@ impl From<ffi::dcmi_aicore_info> for AICoreInfo {
 }
 
 /// AI CPU information
+#[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct AICPUInfo {
     /// Maximum frequency, unit: MHz
     pub max_frequency: u32,

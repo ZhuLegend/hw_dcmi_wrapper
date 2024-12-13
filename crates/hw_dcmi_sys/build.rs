@@ -29,12 +29,12 @@ fn main() {
     // and lets you build up options for the resulting bindings.
 
     let builder = init_bindgen_builder(interface_path);
-    
+
     #[cfg(feature = "load_dynamic")]
     let builder = builder
         .dynamic_library_name("dcmi")
         .dynamic_link_require_all(true);
-    
+
     let bindings = builder
         // Finish the builder and generate the bindings.
         .generate()
@@ -43,7 +43,8 @@ fn main() {
 
     // 指定输出文件的路径为 src/hw_dcmi_sys.rs
     #[cfg(feature = "load_dynamic")]
-    let out_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("src/bindings_dyn.rs");
+    let out_path =
+        PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("src/bindings_dyn.rs");
     #[cfg(not(feature = "load_dynamic"))]
     let out_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("src/bindings.rs");
 

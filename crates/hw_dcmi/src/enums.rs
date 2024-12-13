@@ -5,12 +5,17 @@ use hw_dcmi_sys::bindings as ffi;
 #[cfg(feature = "serde")]
 use serde_derive::{Deserialize, Serialize};
 
+/// Compute unit type
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum UnitType {
+    /// NPU
     NPU,
+    /// MCU
     MCU,
+    /// CPU
     CPU,
+    /// Invalid type
     Invalid,
 }
 
@@ -183,7 +188,7 @@ impl From<FrequencyType> for ffi::dcmi_freq_type {
 }
 
 /// Utilization type
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum UtilizationType {
     /// Memory
@@ -223,8 +228,9 @@ impl From<i32> for UtilizationType {
     }
 }
 
-impl Into<i32> for UtilizationType {
-    fn into(self) -> i32 {
+impl UtilizationType {
+    /// Convert the enum to the i32 which used by DCMI c library
+    pub fn to_raw_value(&self) -> i32 {
         match self {
             UtilizationType::Memory => 1,
             UtilizationType::AICore => 2,
