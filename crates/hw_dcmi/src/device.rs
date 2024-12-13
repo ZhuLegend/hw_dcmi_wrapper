@@ -736,7 +736,7 @@ impl Chip<'_, '_> {
     ///
     /// # Returns
     /// - out: output virtual chip info
-    pub fn create_virtual_chip(&self, vdev: &VChipRes) -> DCMIResult<VChipOutput> {
+    pub fn create_virtual_chip(&self, vdev: VChipRes) -> DCMIResult<VChipOutput> {
         let mut vchip_out = unsafe { std::mem::zeroed() };
 
         #[cfg(not(feature = "load_dynamic"))]
