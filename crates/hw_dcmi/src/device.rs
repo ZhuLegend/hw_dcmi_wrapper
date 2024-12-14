@@ -6,7 +6,8 @@ use crate::enums::{
 use crate::error::{dcmi_try, DCMIError, DCMIResult, GetDataError};
 use crate::structs::{
     AICPUInfo, AICoreInfo, BoardInfo, ChipInfo, ChipPCIEErrorRate, DieInfo, DomainPCIEInfo,
-    ECCInfo, ELabelInfo, FlashInfo, HBMInfo, MemoryInfo, PCIEInfo, VChipOutput, VChipRes,
+    ECCInfo, ELabelInfo, FlashInfo, HBMInfo, MemoryInfo, PCIEInfo, VChipOutput,
+    VChipRes,
 };
 use crate::DCMI;
 #[cfg(not(feature = "load_dynamic"))]
@@ -738,7 +739,7 @@ impl Chip<'_, '_> {
     ///
     /// # Returns
     /// - out: output virtual chip info
-    pub fn create_virtual_chip(&self, vdev: VChipRes) -> DCMIResult<VChipOutput> {
+    pub fn create_virtual_chip(&self, vdev: VChipRes) -> DCMIResult<(VChipOutput, VChip)> {
         let mut vchip_out = unsafe { std::mem::zeroed() };
 
         #[cfg(not(feature = "load_dynamic"))]
@@ -753,7 +754,14 @@ impl Chip<'_, '_> {
             &mut vchip_res,
             &mut vchip_out
         );
-        Ok(vchip_out.into())
+        Ok((
+            vchip_out.into(),
+            VChip {
+                id: vchip_out.vdev_id,
+                vfg_id: vchip_out.vfg_id,
+                chip: self,
+            },
+        ))
     }
 
     /// Destroy a virtual chip
@@ -767,6 +775,69 @@ impl Chip<'_, '_> {
             self.card.id as i32,
             self.id as i32,
             destroy_mode.to_raw_param()
+        );
+        Ok(())
+    }
+}
+
+/// Virtual chip of the DCMI
+#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct VChip<'a, 'b, 'c>
+where
+    'b: 'a,
+    'c: 'b,
+{
+    pub(crate) id: u32,
+    pub(crate) vfg_id: u32,
+    pub(crate) chip: &'a Chip<'b, 'c>,
+}
+
+impl<'a, 'b, 'c> VChip<'a, 'b, 'c>
+where
+    'b: 'a,
+    'c: 'b,
+{
+    /// Create a new virtual chip
+    ///
+    /// # Warning
+    /// It is your responsibility to ensure that the virtual chip ID is valid
+    pub fn new_unchecked(chip: &'a Chip<'b, 'c>, vchip_id: u32, vfg_id: u32) -> Self {
+        VChip {
+            id: vchip_id,
+            vfg_id,
+            chip,
+        }
+    }
+
+    /// Query the ID of this virtual chip
+    pub fn id(&self) -> u32 {
+        self.id
+    }
+
+    /// Query the ID of this virtual chip
+    pub fn vfg_id(&self) -> u32 {
+        self.vfg_id
+    }
+
+    /// Query the chip of this virtual chip
+    ///
+    /// # Returns
+    /// chip
+    pub fn chip(&self) -> &Chip {
+        self.chip
+    }
+}
+
+impl VChip<'_, '_, '_> {
+    /// Destroy self
+    pub fn destroy_self(&self) -> DCMIResult<()> {
+        call_dcmi_function!(
+            dcmi_set_destroy_vdevice,
+            self.chip.card.dcmi.lib,
+            self.chip.card.id as i32,
+            self.chip.id as i32,
+            self.id
         );
         Ok(())
     }
