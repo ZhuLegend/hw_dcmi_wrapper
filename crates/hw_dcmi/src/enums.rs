@@ -269,7 +269,7 @@ pub enum DestroyVChipMode {
 impl DestroyVChipMode {
     pub(crate) fn to_raw_param(&self) -> u32 {
         match self {
-            DestroyVChipMode::SingleDevice(id) => id.id,
+            DestroyVChipMode::SingleDevice(id) => id.get_id(),
             DestroyVChipMode::AllDevices => 65535,
         }
     }

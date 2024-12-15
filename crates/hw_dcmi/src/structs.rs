@@ -526,7 +526,7 @@ impl From<ffi::dcmi_create_vdev_out> for VChipOutput {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SingleDeviceId {
     /// ID
-    pub id: u32,
+    id: u32,
 }
 
 impl SingleDeviceId {
@@ -538,5 +538,10 @@ impl SingleDeviceId {
         }
         .unwrap();
         SingleDeviceId { id }
+    }
+
+    /// Get the ID
+    pub fn get_id(&self) -> u32 {
+        self.id
     }
 }
