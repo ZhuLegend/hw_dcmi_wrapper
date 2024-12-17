@@ -742,10 +742,7 @@ impl Chip<'_, '_> {
     pub fn create_virtual_chip(&self, vdev: VChipRes) -> DCMIResult<(VChipOutput, VChip)> {
         let mut vchip_out = unsafe { std::mem::zeroed() };
 
-        #[cfg(not(feature = "load_dynamic"))]
-        let mut vchip_res = hw_dcmi_sys::bindings::dcmi_create_vdev_res_stru::from(vdev);
-        #[cfg(feature = "load_dynamic")]
-        let mut vchip_res = hw_dcmi_sys::bindings_dyn::dcmi_create_vdev_res_stru::from(vdev);
+        let mut vchip_res = vdev.into();
         call_dcmi_function!(
             dcmi_create_vdevice,
             self.card.dcmi.lib,
@@ -815,7 +812,7 @@ where
         self.id
     }
 
-    /// Query the ID of this virtual chip
+    /// Query the group ID of this virtual chip
     pub fn vfg_id(&self) -> u32 {
         self.vfg_id
     }

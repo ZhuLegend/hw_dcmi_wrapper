@@ -1,10 +1,9 @@
 //! Wrapped structs for the DCMI peripheral
 
+use hw_dcmi_sys::bindings as ffi;
 #[cfg(feature = "serde")]
 use serde_derive::{Deserialize, Serialize};
 use std::ffi::CStr;
-
-use hw_dcmi_sys::bindings as ffi;
 
 /// Chip information
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -425,9 +424,9 @@ impl From<ffi::dcmi_ecc_info> for ECCInfo {
 }
 
 /// VChip resource
+#[non_exhaustive]
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[non_exhaustive]
 pub struct VChipRes {
     /// VChip ID
     pub vchip_id: u32,
@@ -435,8 +434,6 @@ pub struct VChipRes {
     pub vfg_id: u32,
     /// Template name
     pub template_name: String,
-    /// Reserved
-    reserved: String,
 }
 
 impl VChipRes {
@@ -446,7 +443,6 @@ impl VChipRes {
             vchip_id: 0xFFFFFFFF,
             vfg_id: 0xFFFFFFFF,
             template_name,
-            reserved: String::new(),
         }
     }
 
@@ -456,7 +452,6 @@ impl VChipRes {
             vchip_id,
             vfg_id,
             template_name,
-            reserved: String::new(),
         }
     }
 }
@@ -464,16 +459,11 @@ impl VChipRes {
 impl From<VChipRes> for ffi::dcmi_create_vdev_res_stru {
     fn from(vchip_res: VChipRes) -> Self {
         let mut template_name = [0 as std::os::raw::c_char; 32];
-        let mut reserved = [0 as std::os::raw::c_uchar; 64];
+        let reserved = [0 as std::os::raw::c_uchar; 64];
         let template_bytes = vchip_res.template_name.as_bytes();
         for (i, &byte) in template_bytes.iter().take(32).enumerate() {
             template_name[i] = byte as std::os::raw::c_char;
         }
-        let reserved_bytes = vchip_res.reserved.as_bytes();
-        for (i, &byte) in reserved_bytes.iter().take(64).enumerate() {
-            reserved[i] = byte as std::os::raw::c_uchar;
-        }
-
         ffi::dcmi_create_vdev_res_stru {
             vdev_id: vchip_res.vchip_id,
             vfg_id: vchip_res.vfg_id,
@@ -484,64 +474,21 @@ impl From<VChipRes> for ffi::dcmi_create_vdev_res_stru {
 }
 
 /// Create VChip output
+#[non_exhaustive]
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VChipOutput {
     /// VChip ID
     pub vchip_id: u32,
-    /// PCIE bus reserved
-    pcie_bus: u32,
-    /// PCIE chip reserved
-    pcie_chip: u32,
-    /// PCIE function reserved
-    pcie_func: u32,
     /// VChip group ID
     pub vfg_id: u32,
-    /// Reserved
-    reserved: String,
 }
 
 impl From<ffi::dcmi_create_vdev_out> for VChipOutput {
     fn from(vchip_out: ffi::dcmi_create_vdev_out) -> Self {
         VChipOutput {
             vchip_id: vchip_out.vdev_id,
-            pcie_bus: vchip_out.pcie_bus,
-            pcie_chip: vchip_out.pcie_device,
-            pcie_func: vchip_out.pcie_func,
             vfg_id: vchip_out.vfg_id,
-            reserved: vchip_out
-                .reserved
-                .iter()
-                .map(|&byte| byte as char)
-                .collect(),
         }
-    }
-}
-
-/// Single device ID
-///
-/// Note:
-/// ID cannot be 65535
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct SingleDeviceId {
-    /// ID
-    id: u32,
-}
-
-impl SingleDeviceId {
-    /// Create a new SingleDeviceId
-    pub fn new(id: u32) -> Self {
-        let id = match id {
-            65535 => Err("ID cannot be 65535"),
-            _ => Ok(id),
-        }
-        .unwrap();
-        SingleDeviceId { id }
-    }
-
-    /// Get the ID
-    pub fn get_id(&self) -> u32 {
-        self.id
     }
 }
