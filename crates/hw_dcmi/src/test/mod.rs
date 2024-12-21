@@ -1,10 +1,10 @@
 use crate::enums::DestroyVChipTarget;
 use crate::structs::VChipRes;
 use crate::DCMI;
-use once_cell::sync::Lazy;
 use std::ops::Not;
+use std::sync::LazyLock;
 
-static DCMI_INSTANCE: Lazy<DCMI> = Lazy::new(|| DCMI::init().unwrap());
+static DCMI_INSTANCE: LazyLock<DCMI> = LazyLock::new(|| DCMI::init().unwrap());
 #[test]
 fn test_get_card_list() {
     let dcmi = &*DCMI_INSTANCE;
