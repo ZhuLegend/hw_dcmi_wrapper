@@ -1,4 +1,4 @@
-use crate::enums::DestroyVChipMode;
+use crate::enums::DestroyVChipTarget;
 use crate::structs::VChipRes;
 use crate::DCMI;
 use once_cell::sync::Lazy;
@@ -66,8 +66,8 @@ fn test_destroy_vchip() {
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
     let chip = chips.first().unwrap();
     test_create_vchip();
-    let destroy_mode = DestroyVChipMode::single_device(100).unwrap();
-    chip.destroy_virtual_chip(destroy_mode).unwrap();
+    let destroy_target = DestroyVChipTarget::single_device(100).unwrap();
+    chip.destroy_virtual_chip(destroy_target).unwrap();
 }
 
 #[test]

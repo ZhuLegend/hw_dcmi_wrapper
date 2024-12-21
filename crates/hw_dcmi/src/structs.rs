@@ -1,5 +1,6 @@
 //! Wrapped structs for the DCMI peripheral
 
+use crate::error::{DCMIError, DCMIResult};
 use hw_dcmi_sys::bindings as ffi;
 #[cfg(feature = "serde")]
 use serde_derive::{Deserialize, Serialize};
@@ -490,5 +491,31 @@ impl From<ffi::dcmi_create_vdev_out> for VChipOutput {
             vchip_id: vchip_out.vdev_id,
             vfg_id: vchip_out.vfg_id,
         }
+    }
+}
+
+/// Single device ID
+///
+/// Note:
+/// ID cannot be 65535
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct SingleDeviceId {
+    /// ID
+    id: u32,
+}
+
+impl SingleDeviceId {
+    /// Create a new SingleDeviceId
+    pub fn try_new(id: u32) -> DCMIResult<Self> {
+        match id {
+            65535 => Err(DCMIError::InvalidDeviceId),
+            _ => Ok(SingleDeviceId { id }),
+        }
+    }
+
+    /// Get the ID
+    pub fn id(&self) -> u32 {
+        self.id
     }
 }

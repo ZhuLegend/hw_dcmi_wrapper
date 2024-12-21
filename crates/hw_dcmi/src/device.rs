@@ -1,13 +1,12 @@
 //! Device of the DCMI.
 
 use crate::enums::{
-    DestroyVChipMode, DeviceType, DieType, FrequencyType, HealthState, UnitType, UtilizationType,
+    DestroyVChipTarget, DeviceType, DieType, FrequencyType, HealthState, UnitType, UtilizationType,
 };
 use crate::error::{dcmi_try, DCMIError, DCMIResult, GetDataError};
 use crate::structs::{
     AICPUInfo, AICoreInfo, BoardInfo, ChipInfo, ChipPCIEErrorRate, DieInfo, DomainPCIEInfo,
-    ECCInfo, ELabelInfo, FlashInfo, HBMInfo, MemoryInfo, PCIEInfo, VChipOutput,
-    VChipRes,
+    ECCInfo, ELabelInfo, FlashInfo, HBMInfo, MemoryInfo, PCIEInfo, VChipOutput, VChipRes,
 };
 use crate::DCMI;
 #[cfg(not(feature = "load_dynamic"))]
@@ -765,7 +764,7 @@ impl Chip<'_, '_> {
     ///
     /// # Parameters
     /// - destroy_mode : destroy mode
-    pub fn destroy_virtual_chip(&self, destroy_mode: DestroyVChipMode) -> DCMIResult<()> {
+    pub fn destroy_virtual_chip(&self, destroy_mode: DestroyVChipTarget) -> DCMIResult<()> {
         call_dcmi_function!(
             dcmi_set_destroy_vdevice,
             self.card.dcmi.lib,

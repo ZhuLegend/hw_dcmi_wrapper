@@ -2,7 +2,8 @@
 
 use hw_dcmi_sys::bindings as ffi;
 
-use crate::error::{DCMIError, DCMIResult};
+use crate::error::DCMIResult;
+use crate::structs::SingleDeviceId;
 #[cfg(feature = "serde")]
 use serde_derive::{Deserialize, Serialize};
 
@@ -256,22 +257,22 @@ pub enum VChipPowerSplittingMode {
     VM,
 }
 
-/// Destroy VChip mode
+/// Destroy VChip target
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum DestroyVChipMode {
+pub enum DestroyVChipTarget {
     /// Single device
-    SingleDevice(u32),
+    SingleDevice(SingleDeviceId),
     /// All devices
     AllDevices,
 }
 
-impl DestroyVChipMode {
+impl DestroyVChipTarget {
     /// Convert the enum to the u32
     pub(crate) fn to_raw_param(&self) -> u32 {
         match self {
-            DestroyVChipMode::SingleDevice(id) => *id,
-            DestroyVChipMode::AllDevices => 65535,
+            DestroyVChipTarget::SingleDevice(id) => id.id(),
+            DestroyVChipTarget::AllDevices => 65535,
         }
     }
 
@@ -280,17 +281,13 @@ impl DestroyVChipMode {
     /// # Note
     /// id must be less than 65535
     #[allow(dead_code)]
-    pub(crate) fn single_device(id: u32) -> DCMIResult<DestroyVChipMode> {
-        if id == 65535 {
-            Err(DCMIError::InvalidDeviceId)
-        } else {
-            Ok(DestroyVChipMode::SingleDevice(id))
-        }
+    pub(crate) fn single_device(id: u32) -> DCMIResult<DestroyVChipTarget> {
+        SingleDeviceId::try_new(id).map(DestroyVChipTarget::SingleDevice)
     }
 
     /// Create an all devices mode
     #[allow(dead_code)]
-    pub(crate) fn all_devices() -> DestroyVChipMode {
-        DestroyVChipMode::AllDevices
+    pub(crate) fn all_devices() -> DestroyVChipTarget {
+        DestroyVChipTarget::AllDevices
     }
 }
