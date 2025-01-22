@@ -1,7 +1,7 @@
 //! some useful macros
 
 macro_rules! call_dcmi_function {
-    ($func_name:ident, $dcmi:expr, $($arg:expr),*) => {
+    ($func_name:ident, $dcmi:expr $(, $arg:expr)*) => {
         dcmi_try(
             unsafe {
                 #[cfg(feature = "load_dynamic")]

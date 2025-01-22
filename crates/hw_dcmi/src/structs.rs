@@ -496,9 +496,9 @@ impl From<ffi::dcmi_create_vdev_out> for VChipOutput {
 
 /// Single device ID
 ///
-/// Note:
-/// ID cannot be 65535
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+/// Warning:
+/// ID should not be 65535
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SingleDeviceId {
     /// ID
