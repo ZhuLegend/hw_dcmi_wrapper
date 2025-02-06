@@ -1,5 +1,5 @@
 [package]
-name = "hw_dcmi_sys"
+name = "hw_dcmi_wrapper_sys"
 version = "0.1.0"
 authors = ["ZhuLegend"]
 description = "A safe and ergonomic Rust wrapper for the Huawei DCMI API."

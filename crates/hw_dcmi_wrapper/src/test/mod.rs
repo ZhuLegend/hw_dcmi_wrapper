@@ -1,3 +1,4 @@
+use crate::device::card::Card;
 use crate::enums::DestroyVChipTarget;
 use crate::structs::VChipRes;
 use crate::DCMI;
@@ -8,14 +9,14 @@ static DCMI_INSTANCE: LazyLock<DCMI> = LazyLock::new(|| DCMI::init().unwrap());
 #[test]
 fn test_get_card_list() {
     let dcmi = &*DCMI_INSTANCE;
-    let card_list = dcmi.get_card_list().unwrap();
+    let card_list = Card::query_cards(&dcmi).unwrap();
     println!("card num: {}, card list: {:?}", card_list.len(), card_list);
 }
 
 #[test]
 fn test_get_memory_info() {
     let dcmi = &*DCMI_INSTANCE;
-    let card_list = dcmi.get_card_list().unwrap();
+    let card_list = Card::query_cards(&dcmi).unwrap();
     for card in card_list {
         let (chips, mcu_chip, cpu_chip) = card.get_chips().unwrap();
         println!(
@@ -32,7 +33,7 @@ fn test_get_memory_info() {
 #[test]
 fn test_get_hbm_info() {
     let dcmi = &*DCMI_INSTANCE;
-    let card_list = dcmi.get_card_list().unwrap();
+    let card_list = Card::query_cards(&dcmi).unwrap();
     for card in card_list {
         let (chips, mcu_chip, cpu_chip) = card.get_chips().unwrap();
         println!(
@@ -49,7 +50,7 @@ fn test_get_hbm_info() {
 #[test]
 fn test_create_vchip() {
     let dcmi = &*DCMI_INSTANCE;
-    let card_list = dcmi.get_card_list().unwrap();
+    let card_list = Card::query_cards(&dcmi).unwrap();
     let card = card_list.first().unwrap();
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
     let chip = chips.first().unwrap();
@@ -61,7 +62,7 @@ fn test_create_vchip() {
 #[test]
 fn test_destroy_vchip() {
     let dcmi = &*DCMI_INSTANCE;
-    let card_list = dcmi.get_card_list().unwrap();
+    let card_list = Card::query_cards(&dcmi).unwrap();
     let card = card_list.first().unwrap();
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
     let chip = chips.first().unwrap();
@@ -73,7 +74,7 @@ fn test_destroy_vchip() {
 #[test]
 fn test_destroy_self() {
     let dcmi = &*DCMI_INSTANCE;
-    let card_list = dcmi.get_card_list().unwrap();
+    let card_list = Card::query_cards(&dcmi).unwrap();
     let card = card_list.first().unwrap();
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
     let chip = chips.first().unwrap();
@@ -82,7 +83,7 @@ fn test_destroy_self() {
     println!("vchip_out: {:?}", vchip_out);
     assert_eq!(vchip_out.0.vchip_id, vchip_out.1.id);
     assert_eq!(vchip_out.0.vfg_id, vchip_out.1.vfg_id);
-    vchip_out.1.destroy_self().unwrap();
+    vchip_out.1.destroy().unwrap();
 }
 
 #[test]

@@ -2,7 +2,7 @@
 
 macro_rules! call_dcmi_function {
     ($func_name:ident, $dcmi:expr $(, $arg:expr)*) => {
-        dcmi_try(
+        crate::dcmi_try(
             unsafe {
                 #[cfg(feature = "load_dynamic")]
                 {
@@ -10,7 +10,7 @@ macro_rules! call_dcmi_function {
                 }
                 #[cfg(not(feature = "load_dynamic"))]
                 {
-                    ffi::$func_name($($arg),*)
+                    crate::ffi::$func_name($($arg),*)
                 }
             }
         )?
@@ -20,8 +20,8 @@ macro_rules! call_dcmi_function {
 macro_rules! check_value {
     ($value:expr) => {
         match $value {
-            0x7ffd => Err(GetDataError::InvalidData),
-            0x7fff => Err(GetDataError::ReadError),
+            0x7ffd => Err(crate::error::GetDataError::InvalidData),
+            0x7fff => Err(crate::error::GetDataError::ReadError),
             _ => Ok($value),
         }
     };

@@ -1,117 +1,17 @@
-//! Device of the DCMI.
+//! Chip of the DCMI
 
-use crate::enums::{
-    DestroyVChipTarget, DeviceType, DieType, FrequencyType, HealthState, UnitType, UtilizationType,
-};
-use crate::error::{dcmi_try, DCMIError, DCMIResult, GetDataError};
+use crate::device::card::Card;
+use crate::enums::{DeviceType, DieType, FrequencyType, HealthState, UnitType, UtilizationType};
+use crate::error::{DCMIError, DCMIResult};
 use crate::structs::{
-    AICPUInfo, AICoreInfo, BoardInfo, ChipInfo, ChipPCIEErrorRate, DieInfo, DomainPCIEInfo,
-    ECCInfo, ELabelInfo, FlashInfo, HBMInfo, MemoryInfo, PCIEInfo, VChipOutput, VChipRes,
+    AICPUInfo, AICoreInfo, BoardInfo, CGroupInfo, ChipInfo, ChipPCIEErrorRate, ComponentType,
+    DieInfo, DomainPCIEInfo, ECCInfo, ELabelInfo, FlashInfo, HBMInfo, LLCPerf, ManagerSensorId,
+    MemoryInfo, PCIEInfo, SensorInfo,
 };
-use crate::DCMI;
-#[cfg(not(feature = "load_dynamic"))]
-use hw_dcmi_sys::bindings as ffi;
-#[cfg(feature = "serde")]
-use serde_derive::{Deserialize, Serialize};
 use std::ffi::CStr;
-
-/// Npu management unit
-#[derive(Debug)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Card<'a> {
-    #[cfg_attr(not(feature = "load_dynamic"), allow(dead_code))]
-    pub(crate) dcmi: &'a DCMI,
-    pub(crate) id: u32,
-}
-
-impl Card<'_> {
-    /// Create a new card
-    ///
-    /// # Warning
-    /// It is your responsibility to ensure that the card ID is valid
-    pub fn new_unchecked(dcmi: &DCMI, id: u32) -> Card {
-        Card { dcmi, id }
-    }
-
-    /// Query the ID of this card
-    pub fn id(&self) -> u32 {
-        self.id
-    }
-}
-
-impl Card<'_> {
-    /// Query number of NPU chip in specific NPU management unit
-    ///
-    /// # Returns
-    /// number of NPU chip
-    pub fn get_chip_num(&self) -> DCMIResult<u32> {
-        let mut device_num = 0i32;
-
-        call_dcmi_function!(
-            dcmi_get_device_num_in_card,
-            self.dcmi.lib,
-            self.id as i32,
-            &mut device_num
-        );
-
-        Ok(device_num as u32)
-    }
-
-    /// Get the (NPU chip list, MCU chip, CPU chip) of the specified NPU management unit
-    ///
-    /// # Returns
-    /// each element of return tuple means:
-    /// - Vec<Chip>: NPU chip list
-    /// - Option<Chip>: MCU chip, if there is no MCU chip, it will be None
-    /// - Option<Chip>: CPU chip, if there is no CPU chip, it will be None
-    pub fn get_chips(&self) -> DCMIResult<(Vec<Chip>, Option<Chip>, Option<Chip>)> {
-        let mut device_id_max = 0i32;
-        let mut mcu_id = 0i32;
-        let mut cpu_id = 0i32;
-
-        call_dcmi_function!(
-            dcmi_get_device_id_in_card,
-            self.dcmi.lib,
-            self.id as i32,
-            &mut device_id_max,
-            &mut mcu_id,
-            &mut cpu_id
-        );
-
-        let npu_chips = (0..device_id_max)
-            .into_iter()
-            .map(|id| Chip {
-                card: &self,
-                id: id as u32,
-                unit_type: Some(UnitType::NPU),
-            })
-            .collect::<Vec<_>>();
-        let mcu_chip = if mcu_id != -1 {
-            Some(Chip {
-                card: &self,
-                id: mcu_id as u32,
-                unit_type: Some(UnitType::MCU),
-            })
-        } else {
-            None
-        };
-        let cpu_chip = if cpu_id != -1 {
-            Some(Chip {
-                card: &self,
-                id: cpu_id as u32,
-                unit_type: Some(UnitType::CPU),
-            })
-        } else {
-            None
-        };
-
-        Ok((npu_chips, mcu_chip, cpu_chip))
-    }
-}
 
 /// Chip of the DCMI
 #[derive(Debug)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Chip<'a, 'b>
 where
     'b: 'a,
@@ -160,7 +60,7 @@ impl Chip<'_, '_> {
     /// # Notes
     /// Only NPU and MCU chip support this function
     pub fn get_type(&self) -> DCMIResult<UnitType> {
-        if let Some(unit_type) = self.unit_type {
+        if let Some(unit_type) = self.unit_type.clone() {
             Ok(unit_type)
         } else {
             let mut unit_type = unsafe { std::mem::zeroed() };
@@ -731,110 +631,168 @@ impl Chip<'_, '_> {
         Ok(utilization_rate)
     }
 
-    /// Create a virtual chip
+    /// Query the sensor information
     ///
     /// # Parameters
-    /// - vdev: virtual chip info
+    /// - target: target sensor you want to query
     ///
     /// # Returns
-    /// - out: output virtual chip info
-    pub fn create_virtual_chip(&self, vdev: VChipRes) -> DCMIResult<(VChipOutput, VChip)> {
-        let mut vchip_out = unsafe { std::mem::zeroed() };
+    /// sensor information
+    ///
+    /// # Notes
+    /// According to the [DCMI documentation](https://support.huawei.com/enterprise/zh/doc/EDOC1100349020/8b969022):
+    ///
+    /// - Following target will return [SensorInfo::UChar]:
+    ///     - Temperature of the corresponding sensor
+    ///         - [ManagerSensorId::ClusterTemperature],
+    ///         - [ManagerSensorId::PeripheralTemperature],
+    ///         - [ManagerSensorId::AiCore0Temperature],
+    ///         - [ManagerSensorId::AiCore1Temperature],
+    ///         - [ManagerSensorId::SocTemperature],
+    ///     - [ManagerSensorId::AiCoreLimit] will return 0 for limited core, 1 for unlimited core.
+    ///     - [ManagerSensorId::AiCoreTotalPer] return the total pulse period of the AI core
+    ///     - [ManagerSensorId::AiCoreElimPer] return the eliminable period of the AI core
+    /// - Following target will return [SensorInfo::UShort]:
+    ///     - [ManagerSensorId::AiCoreBaseFrequency] return the base frequency of the AI core in MHz
+    ///     - [ManagerSensorId::NpuDdrFrequency] return the DDR frequency in MHz
+    /// - [ManagerSensorId::ThermalThreshold] return the thermal threshold([SensorInfo::Temp]), `temp[0]` is the temperature for frequency limit, `temp[1]` is the temperature for system reset
+    /// - [ManagerSensorId::NtcTemperature] return the temperature of the NTC sensor([SensorInfo::NTCTemp]), `ntc_tmp[0]` to `ntc_tmp[3]` are the temperature of the four NTC sensors
+    /// - Following target will return [SensorInfo::Int]:
+    ///     - [ManagerSensorId::FpTemperature] return the highest temperature of the optical module
+    ///     - [ManagerSensorId::NDieTemperature] return the temperature of the N_DIE
+    ///     - [ManagerSensorId::HbmTemperature] return the highest temperature of the on-chip memory
+    pub fn get_sensor_info(&self, target: ManagerSensorId) -> DCMIResult<SensorInfo> {
+        let mut sensor_info = unsafe { std::mem::zeroed() };
 
-        let mut vchip_res = vdev.into();
         call_dcmi_function!(
-            dcmi_create_vdevice,
+            dcmi_get_device_sensor_info,
             self.card.dcmi.lib,
             self.card.id as i32,
             self.id as i32,
-            &mut vchip_res,
-            &mut vchip_out
+            target.clone().into(),
+            &mut sensor_info
         );
-        Ok((
-            vchip_out.into(),
-            VChip {
-                id: vchip_out.vdev_id,
-                vfg_id: vchip_out.vfg_id,
-                chip: self,
-            },
-        ))
+
+        Ok(unsafe { SensorInfo::from_ffi_raw(sensor_info, target.query_result_type()) })
     }
 
-    /// Destroy a virtual chip
+    /// Query the board ID
     ///
-    /// # Parameters
-    /// - destroy_mode : destroy mode
-    pub fn destroy_virtual_chip(&self, destroy_mode: DestroyVChipTarget) -> DCMIResult<()> {
+    /// # Returns
+    /// board ID
+    pub fn get_board_id(&self) -> DCMIResult<u32> {
+        let mut board_id = 0u32;
+
         call_dcmi_function!(
-            dcmi_set_destroy_vdevice,
+            dcmi_get_device_board_id,
             self.card.dcmi.lib,
             self.card.id as i32,
             self.id as i32,
-            destroy_mode.to_raw_param()
+            &mut board_id
         );
-        Ok(())
-    }
-}
 
-/// Virtual chip of the DCMI
-#[derive(Debug)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct VChip<'a, 'b, 'c>
-where
-    'b: 'a,
-    'c: 'b,
-{
-    pub(crate) id: u32,
-    pub(crate) vfg_id: u32,
-    pub(crate) chip: &'a Chip<'b, 'c>,
-}
-
-impl<'a, 'b, 'c> VChip<'a, 'b, 'c>
-where
-    'b: 'a,
-    'c: 'b,
-{
-    /// Create a new virtual chip
-    ///
-    /// # Warning
-    /// It is your responsibility to ensure that the virtual chip ID is valid
-    pub fn new_unchecked(chip: &'a Chip<'b, 'c>, vchip_id: u32, vfg_id: u32) -> Self {
-        VChip {
-            id: vchip_id,
-            vfg_id,
-            chip,
-        }
+        Ok(board_id)
     }
 
-    /// Query the ID of this virtual chip
-    pub fn id(&self) -> u32 {
-        self.id
-    }
-
-    /// Query the group ID of this virtual chip
-    pub fn vfg_id(&self) -> u32 {
-        self.vfg_id
-    }
-
-    /// Query the chip of this virtual chip
+    /// Query the component count
     ///
     /// # Returns
-    /// chip
-    pub fn chip(&self) -> &Chip {
-        self.chip
-    }
-}
+    /// component count
+    pub fn get_component_count(&self) -> DCMIResult<u32> {
+        let mut component_count = 0u32;
 
-impl VChip<'_, '_, '_> {
-    /// Destroy self
-    pub fn destroy_self(&self) -> DCMIResult<()> {
         call_dcmi_function!(
-            dcmi_set_destroy_vdevice,
-            self.chip.card.dcmi.lib,
-            self.chip.card.id as i32,
-            self.chip.id as i32,
-            self.id
+            dcmi_get_device_component_count,
+            self.card.dcmi.lib,
+            self.card.id as i32,
+            self.id as i32,
+            &mut component_count
         );
-        Ok(())
+
+        Ok(component_count)
+    }
+
+    /// Query the component list
+    ///
+    /// # Parameters
+    /// - component_num: component number, query by [Chip::get_component_count]
+    ///
+    /// # Returns
+    /// component list
+    pub fn get_component_list(&self, component_num: u32) -> DCMIResult<Vec<ComponentType>> {
+        let mut component_list = vec![0u32; component_num as usize];
+
+        call_dcmi_function!(
+            dcmi_get_device_component_list,
+            self.card.dcmi.lib,
+            self.card.id as i32,
+            self.id as i32,
+            component_list.as_mut_ptr(),
+            component_num
+        );
+
+        Ok(component_list.into_iter().map(Into::into).collect())
+    }
+
+    /// Query the component version
+    ///
+    /// # Parameters
+    /// - target: component type
+    ///
+    /// # Returns
+    /// component version string
+    pub fn get_component_static_version(&self, target: ComponentType) -> DCMIResult<String> {
+        let mut version = [0u8; 256];
+
+        call_dcmi_function!(
+            dcmi_get_device_component_static_version,
+            self.card.dcmi.lib,
+            self.card.id as i32,
+            self.id as i32,
+            target.into(),
+            version.as_mut_ptr(),
+            256
+        );
+
+        Ok(CStr::from_bytes_until_nul(&version)
+            .unwrap()
+            .to_str()?
+            .into())
+    }
+
+    /// Query the cgoup information
+    ///
+    /// # Returns
+    /// cgroup information
+    pub fn get_cgroup_info(&self) -> DCMIResult<CGroupInfo> {
+        let mut cgroup_info = unsafe { std::mem::zeroed() };
+
+        call_dcmi_function!(
+            dcmi_get_device_cgroup_info,
+            self.card.dcmi.lib,
+            self.card.id as i32,
+            self.id as i32,
+            &mut cgroup_info
+        );
+
+        Ok(cgroup_info.into())
+    }
+
+    /// Query the LLC performance
+    ///
+    /// # Returns
+    /// LLC performance, including LLC read hit rate, LLC write hit rate, and LLC throughput
+    pub fn get_llc_perf(&self) -> DCMIResult<LLCPerf> {
+        let mut llc_perf = unsafe { std::mem::zeroed() };
+
+        call_dcmi_function!(
+            dcmi_get_device_llc_perf_para,
+            self.card.dcmi.lib,
+            self.card.id as i32,
+            self.id as i32,
+            &mut llc_perf
+        );
+
+        Ok(llc_perf.into())
     }
 }

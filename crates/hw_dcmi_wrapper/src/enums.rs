@@ -1,14 +1,12 @@
 //! Wrapped enums for the DCMI peripheral
 
-use hw_dcmi_sys::bindings as ffi;
+use hw_dcmi_wrapper_sys::bindings as ffi;
 
-use crate::error::DCMIResult;
-use crate::structs::SingleDeviceId;
 #[cfg(feature = "serde")]
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 /// Compute unit type
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum UnitType {
     /// NPU
@@ -34,7 +32,7 @@ impl From<ffi::dcmi_unit_type> for UnitType {
 }
 
 /// Die type
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum DieType {
     /// NDie
@@ -63,7 +61,7 @@ impl From<DieType> for ffi::dcmi_die_type {
 }
 
 /// Device type
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum DeviceType {
     /// DDR
@@ -116,7 +114,7 @@ impl From<DeviceType> for ffi::dcmi_device_type {
 }
 
 /// Health state
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum HealthState {
     /// Normal
@@ -145,7 +143,7 @@ impl From<u32> for HealthState {
 }
 
 /// Frequency type
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum FrequencyType {
     /// DDR
@@ -248,7 +246,7 @@ impl UtilizationType {
 }
 
 /// VChip power splitting mode
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum VChipPowerSplittingMode {
     /// Container
@@ -257,37 +255,46 @@ pub enum VChipPowerSplittingMode {
     VM,
 }
 
-/// Destroy VChip target
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum DestroyVChipTarget {
-    /// Single device
-    SingleDevice(SingleDeviceId),
-    /// All devices
-    AllDevices,
+/// VChip create parameter
+pub enum VChipCreateParam {
+    /// Create a VChip with a specific template name, vchip id and group id will automatically assigned
+    TemplateName(String),
+    /// Create a VChip with a specific template name, vchip id and group id
+    SpecificId {
+        /// Template name
+        template_name: String,
+        /// VChip id
+        id: u32,
+        /// Group id
+        group_id: u32,
+    },
 }
 
-impl DestroyVChipTarget {
-    /// Convert the enum to the u32
-    pub(crate) fn to_raw_param(&self) -> u32 {
-        match self {
-            DestroyVChipTarget::SingleDevice(id) => id.id(),
-            DestroyVChipTarget::AllDevices => 65535,
+impl From<VChipCreateParam> for ffi::dcmi_create_vdev_res_stru {
+    fn from(value: VChipCreateParam) -> Self {
+        let mut template_name = [0 as std::os::raw::c_char; 32];
+        let reserved = [0 as std::os::raw::c_uchar; 64];
+
+        let (vdev_id, vfg_id, value_template_name) = match value {
+            VChipCreateParam::TemplateName(template_name) => {
+                (0xFFFFFFFF, 0xFFFFFFFF, template_name)
+            }
+            VChipCreateParam::SpecificId {
+                template_name,
+                id,
+                group_id,
+            } => (id, group_id, template_name),
+        };
+
+        let template_bytes = value_template_name.as_bytes();
+        for (i, &byte) in template_bytes.iter().take(32).enumerate() {
+            template_name[i] = byte as std::os::raw::c_char;
         }
-    }
-
-    /// Create a single device mode
-    ///
-    /// # Note
-    /// id must be less than 65535
-    #[allow(dead_code)]
-    pub(crate) fn single_device(id: u32) -> DCMIResult<DestroyVChipTarget> {
-        SingleDeviceId::try_new(id).map(DestroyVChipTarget::SingleDevice)
-    }
-
-    /// Create an all devices mode
-    #[allow(dead_code)]
-    pub(crate) fn all_devices() -> DestroyVChipTarget {
-        DestroyVChipTarget::AllDevices
+        ffi::dcmi_create_vdev_res_stru {
+            vdev_id,
+            vfg_id,
+            template_name,
+            reserved,
+        }
     }
 }

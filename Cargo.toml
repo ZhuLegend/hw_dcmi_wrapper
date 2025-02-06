@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/hw_dcmi", "crates/hw_dcmi_sys"]
+members = ["crates/hw_dcmi_wrapper", "crates/hw_dcmi_wrapper_sys"]
 resolver = "2"
 
 [workspace.dependencies]

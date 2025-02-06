@@ -41,7 +41,7 @@ fn main() {
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings");
 
-    // 指定输出文件的路径为 src/hw_dcmi_sys.rs
+    // 指定输出文件的路径为 src/hw_dcmi_wrapper_sys.rs
     #[cfg(feature = "load_dynamic")]
     let out_path =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("src/bindings_dyn.rs");
