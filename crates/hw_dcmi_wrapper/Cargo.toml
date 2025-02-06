@@ -10,7 +10,7 @@ license = "MIT OR Apache-2.0"
 edition = "2021"
 
 keywords = ["huawei", "gpu", "managment", "monitoring", "hardware"]
-categories = ["api-bindings", "hardware-support"]
+categories = ["api-bindings", "development-tools::ffi", "hardware-support"]
 
 [features]
 load_dynamic = ["hw_dcmi_wrapper_sys/load_dynamic", "dep:libloading"]

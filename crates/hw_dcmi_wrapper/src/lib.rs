@@ -54,6 +54,19 @@ pub struct DCMI;
 /// Regardless of whether you use the 'load.dynamic' feature or not, the Init structure will ensure the correct initialization of DCMI
 /// All DCMI library calls require&DCMI to ensure that requests are legal
 /// When you need multiple requests, consider using static save to avoid duplicate initialization
+///
+/// # Example
+/// ```rust no_run
+/// # use hw_dcmi_wrapper::DCMI;
+/// use hw_dcmi_wrapper::device::card::Card;
+/// let dcmi = DCMI::init().unwrap();
+///
+/// let dcmi_version = dcmi.get_dcmi_version().unwrap();
+/// println!("DCMI version: {}", dcmi_version);
+///
+/// let cards = Card::query_cards(&dcmi).unwrap();
+/// println!("Card list: {:?}", cards);
+/// ```
 #[cfg(feature = "load_dynamic")]
 pub struct DCMI {
     pub(crate) lib: ffi::dcmi,
