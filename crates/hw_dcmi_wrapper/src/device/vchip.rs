@@ -27,12 +27,8 @@ where
     ///
     /// # Warning
     /// It is your responsibility to ensure that the virtual chip ID is valid
-    pub fn new_unchecked(chip: &'a Chip<'b, 'c>, vchip_id: u32, vfg_id: u32) -> Self {
-        VChip {
-            id: vchip_id,
-            vfg_id,
-            chip,
-        }
+    pub fn new_unchecked(chip: &'a Chip<'b, 'c>, id: u32, vfg_id: u32) -> Self {
+        VChip { id, vfg_id, chip }
     }
 
     /// Query the ID of this virtual chip

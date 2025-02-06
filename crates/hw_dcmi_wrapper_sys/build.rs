@@ -16,6 +16,15 @@ fn init_bindgen_builder(header: impl Into<String>) -> bindgen::Builder {
 }
 
 fn main() {
+    // 当且仅当HW_DCMI_BUILD为true时才生成绑定
+    println!("cargo:rerun-if-env-changed=HW_DCMI_BUILD");
+    if env::var("HW_DCMI_BUILD").is_err() {
+        return;
+    }
+    if env::var("HW_DCMI_BUILD").unwrap() != "true" {
+        return;
+    }
+
     // 读取环境变量HW_DCMI_PATH作为库搜索路径
     let hw_dcmi_path = env::var("HW_DCMI_PATH").unwrap_or_else(|_| "/usr/local/dcmi".to_string());
     let interface_path = format!("{}/dcmi_interface_api.h", hw_dcmi_path);

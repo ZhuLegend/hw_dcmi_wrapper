@@ -1,6 +1,6 @@
 [package]
 name = "hw_dcmi_wrapper"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["ZhuLegend"]
 description = "A safe and ergonomic Rust wrapper for the Huawei DCMI API."
 readme = "../../README.md"
@@ -24,4 +24,4 @@ libloading = { workspace = true, optional = true }
 
 static_assertions = "1.1.0"
 
-hw_dcmi_wrapper_sys = { version = "0.1.0", path = "../hw_dcmi_wrapper_sys" }
+hw_dcmi_wrapper_sys = { version = "0.1.1", path = "../hw_dcmi_wrapper_sys" }
