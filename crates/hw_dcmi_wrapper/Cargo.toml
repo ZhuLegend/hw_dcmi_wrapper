@@ -1,0 +1,27 @@
+[package]
+name = "hw_dcmi_wrapper"
+version = "0.0.1"
+authors = ["ZhuLegend"]
+description = "A safe and ergonomic Rust wrapper for the Huawei DCMI API."
+readme = "../../README.md"
+documentation = "https://docs.rs/hw_dcmi_wrapper"
+repository = "https://github.com/ZhuLegend/hw_dcmi_wrapper"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+
+keywords = ["huawei", "gpu", "managment", "monitoring", "hardware"]
+categories = ["api-bindings", "development-tools::ffi", "hardware-support"]
+
+[features]
+load_dynamic = ["hw_dcmi_wrapper_sys/load_dynamic", "dep:libloading"]
+serde = ["dep:serde", "serde/derive"]
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["default"], optional = true }
+
+libloading = { workspace = true, optional = true }
+
+static_assertions = "1.1.0"
+
+hw_dcmi_wrapper_sys = { version = "0.1.0", path = "../hw_dcmi_wrapper_sys" }
