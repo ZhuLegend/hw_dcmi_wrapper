@@ -1,6 +1,6 @@
 [package]
 name = "hw_dcmi_wrapper_sys"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["ZhuLegend"]
 description = "A raw FFI binding to the Huawei DCMI API."
 readme = "./README.md"
