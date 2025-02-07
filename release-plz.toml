@@ -1,0 +1,6 @@
+[workspace]
+release_always = false
+
+[[package]]
+name = "hw_dcmi_wrapper"
+changelog_include = ["hw_dcmi_wrapper_sys"]
