@@ -1,4 +1,4 @@
-# HW_DCMI_WRAPPER
+# hw_dcmi_wrapper
 
 [![Crates.io version](https://img.shields.io/crates/v/hw_dcmi_wrapper.svg?style=flat-square)](https://crates.io/crates/hw_dcmi_wrapper)
 [![Crates.io downloads](https://img.shields.io/crates/d/hw_dcmi_wrapper.svg?style=flat-square)](https://crates.io/crates/hw_dcmi_wrapper)
@@ -21,6 +21,11 @@
 默认情况下，库将尝试在`/usr/local/dcmi`中查找`dcmi_interface_api.h`并链接`libdcmi.so`，
 你可以提供`HW_DCMI_PATH`环境变量来指定dcmi共享库的路径。
 
+如需重新生成绑定，请设置环境变量`HW_DCMI_BINDING_BUILD`为`true`，生成的绑定文件将保存至：
+
+- 静态链接：`hw_dcmi_wrapper_sys/src/bindings.rs`
+- 动态链接：`hw_dcmi_wrapper_sys/src/bindings_dyn.rs`
+
 ### 示例
 
 - 在使用任何dcmi api之前，需要先初始化库，你可以使用`DCMI::init`来初始化库。
@@ -30,15 +35,17 @@
 详情请查看[文档](https://docs.rs/hw_dcmi_wrapper)
 
 ```rust
-use hw_dcmi_wrapper::DCMI;
-use hw_dcmi_wrapper::device::card::Card;
-let dcmi = DCMI::init().unwrap();
+use hw_dcmi_wrapper::dcmi;
 
-let dcmi_version = dcmi.get_dcmi_version().unwrap();
-println!("DCMI version: {}", dcmi_version);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let dcmi = DCMI::init().unwrap();
 
-let cards = Card::query_cards( & dcmi).unwrap();
-println!("Card list: {:?}", cards);
+    let dcmi_version = dcmi.get_dcmi_version().unwrap();
+    println!("DCMI version: {}", dcmi_version);
+
+    let cards = Card::query_cards(&dcmi).unwrap();
+    println!("Card list: {:?}", cards);
+}
 ```
 
 ## 版本策略
@@ -125,4 +132,8 @@ API来源文档: [Atlas 中心训练卡 23.0.x(23.0.3及其系列版本) DCMI AP
 
 ## Lisence
 
-MIT OR Apache-2.0
+本项目遵循双重许可，您可选择遵循 [Apache 2.0 许可证](./LICENSE-APACHE) 或 [MIT 许可证](./LICENSE-MIT)。
+
+---
+
+除非您明确声明，否则依据Apache-2.0许可证规定，您有意提交至本仓库的任何贡献均默认按上述双重许可授权，且无需附加任何条款或条件。

@@ -31,6 +31,12 @@ Huawei DCMI. This repository contains two main packages:
 By default, the library searches for DCMI components in the `/usr/local/dcmi` directory.
 You can override this path by setting the `HW_DCMI_PATH` environment variable.
 
+If you want to regenerate bindings, you can set `HW_DCMI_BINDING_BUILD` to `true` to regenerate bindings,
+the generated bindings will be saved in:
+
+- Static link: `hw_dcmi_wrapper_sys/src/bindings.rs`
+- Dynamic link: `hw_dcmi_wrapper_sys/src/bindings_dyn.rs`
+
 ## Example Usage
 
 - Before using any DCMI API, you need to initialize the library first. You can Initialize the library with `Dcmi::init`
@@ -43,17 +49,13 @@ Please refer to the document for details（ https://docs.rs/hw_dcmi_wrapper )
 use hw_dcmi_wrapper::dcmi;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Initialize DCMI
-    dcmi::init();
+    let dcmi = DCMI::init().unwrap();
 
-    // Create a new chip instance
-    let chip = dcmi::Chip::new();
+    let dcmi_version = dcmi.get_dcmi_version().unwrap();
+    println!("DCMI version: {}", dcmi_version);
 
-    // Query the system time from the chip
-    let time = chip.get_system_time();
-    println!("System Time: {}", time);
-
-    Ok(())
+    let cards = Card::query_cards(&dcmi).unwrap();
+    println!("Card list: {:?}", cards);
 }
 ```
 
@@ -136,4 +138,13 @@ the DCMI API.
 
 ## License
 
-This project is available under the MIT or Apache-2.0 license.
+#### License
+
+Licensed under either of [Apache License, Version
+2.0](./LICENSE-APACHE") or [MIT license](./LICENSE-MIT) at your option.
+
+---
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in this crate by you, as defined in the Apache-2.0 license, shall
+be dual licensed as above, without any additional terms or conditions.
