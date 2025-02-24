@@ -17,6 +17,7 @@ fn init_bindgen_builder(header: impl Into<String>) -> bindgen::Builder {
 
 fn main() {
     // 读取环境变量HW_DCMI_PATH作为库搜索路径
+    println!("cargo:rerun-if-env-changed=HW_DCMI_PATH");
     let hw_dcmi_path = env::var("HW_DCMI_PATH").unwrap_or_else(|_| "/usr/local/dcmi".to_string());
     println!("cargo:rustc-link-search=native={}", hw_dcmi_path);
 

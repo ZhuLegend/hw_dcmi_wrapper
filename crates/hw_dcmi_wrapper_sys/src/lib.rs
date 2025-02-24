@@ -1,10 +1,10 @@
-//! Rust bindings for the [DaVinci Card Management Interface][https://support.huawei.com/enterprise/zh/doc/EDOC1100349020/426cffd9] (DCMI), a C-based programmatic
+//! Rust bindings for the [DaVinci Card Management Interface](https://support.huawei.com/enterprise/zh/doc/EDOC1100349020/426cffd9) (DCMI), a C-based programmatic
 //! interface for monitoring and managing various states within Huawei NPUs.
 //!
 //! It is intended to be a platform for building 3rd-party applications, and is also the
 //! underlying library for Huawei's npu-smi tool.
 //!
-//! See [`hw_dcmi_wrapper`][https://github.com/ZhuLegend/hw_dcmi_wrapper] for a safe wrapper over top of these bindings.
+//! See [`hw_dcmi_wrapper`](https://github.com/ZhuLegend/hw_dcmi_wrapper) for a safe wrapper over top of these bindings.
 //!
 //! ## About Bindings
 //!
