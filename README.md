@@ -1,7 +1,7 @@
-# HW_DCMI_WRAPPER
+# hw_dcmi_wrapper
 
-[![Crates.io version](https://img.shields.io/crates/v/hw_dcmi_wrapper.svg?style=flat-square)](https://crates.io/crates/hw_dcmi_wrapper)
-[![Crates.io downloads](https://img.shields.io/crates/d/hw_dcmi_wrapper.svg?style=flat-square)](https://crates.io/crates/hw_dcmi_wrapper)
+[![Crates.io version](https://img.shields.io/crates/v/hw_dcmi_wrapper.svg)](https://crates.io/crates/hw_dcmi_wrapper)
+[![Crates.io downloads](https://img.shields.io/crates/d/hw_dcmi_wrapper.svg)](https://crates.io/crates/hw_dcmi_wrapper)
 [![Docs.rs docs](https://docs.rs/hw_dcmi_wrapper/badge.svg)](https://docs.rs/hw_dcmi_wrapper)
 
 [中文文档](./README_CN.md)
