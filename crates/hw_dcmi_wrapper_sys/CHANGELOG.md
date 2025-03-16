@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/ZhuLegend/hw_dcmi_wrapper/compare/hw_dcmi_wrapper_sys-v0.1.2...hw_dcmi_wrapper_sys-v0.1.3) - 2025-03-16
+
+### Added
+
+- *(build)* add environment variable rerun condition for DCMI path
+
+### Other
+
+- update documentation formatting and links
+
 ## [0.1.2](https://github.com/ZhuLegend/hw_dcmi_wrapper/compare/hw_dcmi_wrapper_sys-v0.1.1...hw_dcmi_wrapper_sys-v0.1.2) - 2025-02-07
 
 ### Fixed
