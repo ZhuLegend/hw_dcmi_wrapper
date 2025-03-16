@@ -32,9 +32,10 @@
 
 use crate::enums::HealthState;
 use crate::error::{dcmi_try, DCMIResult};
+use std::cell::Cell;
 
 use hw_dcmi_wrapper_sys::bindings as ffi;
-use static_assertions::assert_impl_all;
+use static_assertions::{assert_impl_all, assert_not_impl_all};
 
 #[macro_use]
 mod macros;
@@ -53,6 +54,11 @@ mod test;
 /// All DCMI library calls require&DCMI to ensure that requests are legal
 /// When you need multiple requests, consider using static save to avoid duplicate initialization
 ///
+/// # Concurrency
+/// According to the Huawei document, DCMI API could not be used in multi-thread. so it not implement `Sync`.
+///
+/// you can use `Arc<Mutex<DCMI>>` to wrap the DCMI instance if you need to share it across threads.
+///
 /// # Example
 /// ```rust no_run
 /// # use hw_dcmi_wrapper::DCMI;
@@ -67,7 +73,9 @@ mod test;
 /// ```
 #[cfg(not(feature = "load_dynamic"))]
 #[derive(Debug)]
-pub struct DCMI;
+pub struct DCMI {
+    _no_sync_marker: std::marker::PhantomData<Cell<u32>>,
+}
 
 /// DCMI
 ///
@@ -76,6 +84,11 @@ pub struct DCMI;
 /// Regardless of whether you use the 'load.dynamic' feature or not, the Init structure will ensure the correct initialization of DCMI
 /// All DCMI library calls require&DCMI to ensure that requests are legal
 /// When you need multiple requests, consider using static save to avoid duplicate initialization
+///
+/// # Concurrency
+/// According to the Huawei document, DCMI API could not be used in multi-thread. so it not implement `Sync`.
+///
+/// you can use `Arc<Mutex<DCMI>>` to wrap the DCMI instance if you need to share it across threads.
 ///
 /// # Example
 /// ```rust no_run
@@ -92,6 +105,7 @@ pub struct DCMI;
 #[cfg(feature = "load_dynamic")]
 pub struct DCMI {
     pub(crate) lib: ffi::dcmi,
+    _no_sync_marker: std::marker::PhantomData<Cell<u32>>,
 }
 
 #[cfg(feature = "load_dynamic")]
@@ -101,7 +115,8 @@ impl std::fmt::Debug for DCMI {
     }
 }
 
-assert_impl_all!(DCMI: Send, Sync);
+assert_impl_all!(DCMI: Send);
+assert_not_impl_all!(DCMI: Sync);
 
 impl DCMI {
     /// Initialize the DCMI
@@ -132,7 +147,8 @@ impl DCMI {
 
         let dcmi = DCMI {
             #[cfg(feature = "load_dynamic")]
-            lib: lib,
+            lib,
+            _no_sync_marker: std::marker::PhantomData,
         };
         Ok(dcmi)
     }
