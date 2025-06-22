@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5](https://github.com/ZhuLegend/hw_dcmi_wrapper/compare/hw_dcmi_wrapper-v0.0.4...hw_dcmi_wrapper-v0.0.5) - 2025-06-22
+
+### Added
+
+- *(bindings)* [**breaking**] add optional bindgen feature for regenerating bindings ([#10](https://github.com/ZhuLegend/hw_dcmi_wrapper/pull/10))
+
+### Fixed
+
+- *(test)* add mutex to DCMI_INSTANCE for thread safety ([#11](https://github.com/ZhuLegend/hw_dcmi_wrapper/pull/11))
+
 ## [0.0.4](https://github.com/ZhuLegend/hw_dcmi_wrapper/compare/hw_dcmi_wrapper-v0.0.3...hw_dcmi_wrapper-v0.0.4) - 2025-03-16
 
 ### Added
