@@ -15,6 +15,7 @@ categories = ["api-bindings", "development-tools::ffi", "hardware-support"]
 [features]
 load_dynamic = ["hw_dcmi_wrapper_sys/load_dynamic", "dep:libloading"]
 serde = ["dep:serde", "serde/derive"]
+bindgen = ["hw_dcmi_wrapper_sys/bindgen"]
 
 [dependencies]
 thiserror = "1.0"
