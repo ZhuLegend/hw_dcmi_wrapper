@@ -16,7 +16,8 @@ categories = ["external-ffi-bindings", "hardware-support"]
 libloading = { workspace = true, optional = true }
 
 [build-dependencies]
-bindgen = "0.70.1"
+bindgen = { version = "0.72.0", optional = true }
 
 [features]
 load_dynamic = ["dep:libloading"]
+bindgen = ["dep:bindgen"]

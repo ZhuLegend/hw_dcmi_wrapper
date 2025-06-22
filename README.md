@@ -31,8 +31,8 @@ Huawei DCMI. This repository contains two main packages:
 By default, the library searches for DCMI components in the `/usr/local/dcmi` directory.
 You can override this path by setting the `HW_DCMI_PATH` environment variable.
 
-If you want to regenerate bindings, you can set `HW_DCMI_BINDING_BUILD` to `true` to regenerate bindings,
-the generated bindings will be saved in:
+If you want to regenerate bindings, you can set `HW_DCMI_BINDING_BUILD` to `true` and
+enable feature `bindgen` to regenerate bindings, the generated bindings will be saved in:
 
 - Static link: `hw_dcmi_wrapper_sys/src/bindings.rs`
 - Dynamic link: `hw_dcmi_wrapper_sys/src/bindings_dyn.rs`

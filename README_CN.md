@@ -21,7 +21,7 @@
 默认情况下，库将尝试在`/usr/local/dcmi`中查找`dcmi_interface_api.h`并链接`libdcmi.so`，
 你可以提供`HW_DCMI_PATH`环境变量来指定dcmi共享库的路径。
 
-如需重新生成绑定，请设置环境变量`HW_DCMI_BINDING_BUILD`为`true`，生成的绑定文件将保存至：
+如需重新生成绑定，请设置环境变量`HW_DCMI_BINDING_BUILD`为`true`，并为库启用`bindgen` feature，生成的绑定文件将保存至：
 
 - 静态链接：`hw_dcmi_wrapper_sys/src/bindings.rs`
 - 动态链接：`hw_dcmi_wrapper_sys/src/bindings_dyn.rs`
