@@ -3,13 +3,13 @@ use crate::device::vchip::VChip;
 use crate::enums::VChipCreateParam;
 use crate::DCMI;
 use std::ops::Not;
-use std::sync::LazyLock;
+use std::sync::{LazyLock, Mutex};
 
-static DCMI_INSTANCE: LazyLock<DCMI> = LazyLock::new(|| DCMI::init().unwrap());
+static DCMI_INSTANCE: LazyLock<Mutex<DCMI>> = LazyLock::new(|| Mutex::new(DCMI::init().unwrap()));
 #[test]
 #[ignore]
 fn test_get_card_list() {
-    let dcmi = &*DCMI_INSTANCE;
+    let dcmi = &*DCMI_INSTANCE.lock().unwrap();
     let card_list = Card::query_cards(dcmi).unwrap();
     println!("card num: {}, card list: {:?}", card_list.len(), card_list);
 }
@@ -17,7 +17,7 @@ fn test_get_card_list() {
 #[test]
 #[ignore]
 fn test_get_memory_info() {
-    let dcmi = &*DCMI_INSTANCE;
+    let dcmi = &*DCMI_INSTANCE.lock().unwrap();
     let card_list = Card::query_cards(dcmi).unwrap();
     for card in card_list {
         let (chips, mcu_chip, cpu_chip) = card.get_chips().unwrap();
@@ -35,7 +35,7 @@ fn test_get_memory_info() {
 #[test]
 #[ignore]
 fn test_get_hbm_info() {
-    let dcmi = &*DCMI_INSTANCE;
+    let dcmi = &*DCMI_INSTANCE.lock().unwrap();
     let card_list = Card::query_cards(dcmi).unwrap();
     for card in card_list {
         let (chips, mcu_chip, cpu_chip) = card.get_chips().unwrap();
@@ -53,7 +53,7 @@ fn test_get_hbm_info() {
 #[test]
 #[ignore]
 fn test_create_vchip() {
-    let dcmi = &*DCMI_INSTANCE;
+    let dcmi = &*DCMI_INSTANCE.lock().unwrap();
     let card_list = Card::query_cards(dcmi).unwrap();
     let card = card_list.first().unwrap();
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
@@ -69,7 +69,7 @@ fn test_create_vchip() {
 #[test]
 #[ignore]
 fn test_destroy_vchip() {
-    let dcmi = &*DCMI_INSTANCE;
+    let dcmi = &*DCMI_INSTANCE.lock().unwrap();
     let card_list = Card::query_cards(dcmi).unwrap();
     let card = card_list.first().unwrap();
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
@@ -82,7 +82,7 @@ fn test_destroy_vchip() {
 #[test]
 #[ignore]
 fn test_destroy_self() {
-    let dcmi = &*DCMI_INSTANCE;
+    let dcmi = &*DCMI_INSTANCE.lock().unwrap();
     let card_list = Card::query_cards(dcmi).unwrap();
     let card = card_list.first().unwrap();
     let (chips, _mcu_chip, _cpu_chip) = card.get_chips().unwrap();
@@ -101,7 +101,7 @@ fn test_destroy_self() {
 #[test]
 #[ignore]
 fn test_chip_mod() {
-    let dcmi = &*DCMI_INSTANCE;
+    let dcmi = &*DCMI_INSTANCE.lock().unwrap();
     let anti_mode = VChip::get_recovery_mode(dcmi).unwrap().not();
     VChip::set_recovery_mode(dcmi, anti_mode).unwrap();
     let new_mode = VChip::get_recovery_mode(dcmi).unwrap();
