@@ -18,7 +18,7 @@ serde = ["dep:serde", "serde/derive"]
 bindgen = ["hw_dcmi_wrapper_sys/bindgen"]
 
 [dependencies]
-thiserror = "1.0"
+thiserror = "2.0"
 serde = { version = "1.0", features = ["default"], optional = true }
 
 libloading = { workspace = true, optional = true }
