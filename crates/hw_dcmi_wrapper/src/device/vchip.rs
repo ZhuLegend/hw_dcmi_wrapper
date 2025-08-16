@@ -91,7 +91,7 @@ where
     ///
     /// # Parameters
     /// - chip: the chip you want to destroy all virtual chips on
-    pub fn destory_all(chip: &'a Chip<'b, 'c>) -> DCMIResult<()> {
+    pub fn destroy_all(chip: &'a Chip<'b, 'c>) -> DCMIResult<()> {
         call_dcmi_function!(
             dcmi_set_destroy_vdevice,
             chip.card.dcmi.lib,
