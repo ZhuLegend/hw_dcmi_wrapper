@@ -9,6 +9,16 @@
 - hw_dcmi_wrapper提供safe的FFI绑定(由hw_dcmi_sys提供的FFI绑定封装而成)
 - hw_dcmi_wrapper_sys提供unsafe的FFI绑定(由bindgen直接生成)
 
+## 平台支持
+
+**重要：此库仅支持 Linux 平台。**
+
+- ✅ **Linux**: 完全支持
+- ❌ **macOS**: 不支持  
+- ❌ **Windows**: 不支持
+
+华为 DCMI API 仅在 Linux 系统上可用。尝试在其他平台上编译此 crate 将导致构建错误。
+
 ## 使用方法
 
 ### 先决条件

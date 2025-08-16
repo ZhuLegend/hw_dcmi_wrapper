@@ -16,6 +16,16 @@ Huawei DCMI. This repository contains two main packages:
 2. **hw_dcmi_wrapper_sys**: Offers low-level, unsafe bindings that provide direct access to the underlying DCMI system
    calls.
 
+## Platform Support
+
+**Important: This library only supports Linux platforms.**
+
+- ✅ **Linux**: Full support
+- ❌ **macOS**: Not supported  
+- ❌ **Windows**: Not supported
+
+The Huawei DCMI API is only available on Linux systems. Attempting to compile this crate on other platforms will result in a build error.
+
 ## Getting Started
 
 ### Prerequisites
