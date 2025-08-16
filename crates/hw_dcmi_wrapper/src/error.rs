@@ -129,6 +129,6 @@ pub fn dcmi_try(code: c_int) -> Result<(), DCMIError> {
         ffi::DCMI_ERR_CODE_IS_UPGRADING => Err(DCMIError::IsUpgrading),
         ffi::DCMI_ERR_CODE_RESOURCE_OCCUPIED => Err(DCMIError::ResourceOccupied),
         ffi::DCMI_ERR_CODE_NOT_SUPPORT => Err(DCMIError::NotSupport),
-        _ => Err(DCMIError::UnknownError(code.into())),
+        _ => Err(DCMIError::UnknownError(code)),
     }
 }
