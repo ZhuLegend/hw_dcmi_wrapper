@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/ZhuLegend/hw_dcmi_wrapper/compare/hw_dcmi_wrapper_sys-v0.2.0...hw_dcmi_wrapper_sys-v0.3.0) - 2025-08-16
+
+### Added
+
+- fail build on non-Linux platforms and document support ([#17](https://github.com/ZhuLegend/hw_dcmi_wrapper/pull/17))
+
+### Fixed
+
+- [**breaking**] fix error method name and clean up code ([#18](https://github.com/ZhuLegend/hw_dcmi_wrapper/pull/18))
+
 ## [0.2.0](https://github.com/ZhuLegend/hw_dcmi_wrapper/compare/hw_dcmi_wrapper_sys-v0.1.3...hw_dcmi_wrapper_sys-v0.2.0) - 2025-06-22
 
 ### Added
