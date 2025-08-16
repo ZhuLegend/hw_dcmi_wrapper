@@ -46,7 +46,7 @@ where
     ///
     /// # Returns
     /// card
-    pub fn card(&self) -> &Card {
+    pub fn card(&self) -> &Card<'b> {
         self.card
     }
 }
@@ -239,7 +239,7 @@ impl Chip<'_, '_> {
     ///
     /// # Returns
     /// health information, [HealthState::DeviceNotFoundOrNotStarted]
-    /// will not be returned in this function different from [DCMI::get_driver_health],
+    /// will not be returned in this function different from [crate::DCMI::get_driver_health],
     ///
     /// Instead, [DCMIError::DeviceNotExist] error will be thrown (always because use [Chip::new_unchecked] to create chip)
     ///
@@ -529,12 +529,12 @@ impl Chip<'_, '_> {
     ///
     /// # Parameters
     /// - target: frequency type, only support
-    /// [DDR](FrequencyType::DDR),
-    /// [CtrlCpu](FrequencyType::CtrlCpu),
-    /// [HBM](FrequencyType::HBM),
-    /// [AICoreCurrent](FrequencyType::AICoreCurrent),
-    /// [AICoreMax](FrequencyType::AICoreMax)
-    /// currently
+    /// - [DDR](FrequencyType::DDR),
+    /// - [CtrlCpu](FrequencyType::CtrlCpu),
+    /// - [HBM](FrequencyType::HBM),
+    /// - [AICoreCurrent](FrequencyType::AICoreCurrent),
+    /// - [AICoreMax](FrequencyType::AICoreMax)
+    ///
     /// # Returns
     /// frequency, unit: 1MHz
     pub fn get_frequency(&self, target: FrequencyType) -> DCMIResult<u32> {
@@ -601,12 +601,12 @@ impl Chip<'_, '_> {
     ///
     /// # Parameters
     /// - target: utilization type, only support [Memory](UtilizationType::Memory),
-    /// [AI Core](UtilizationType::AICore),
-    /// [AI CPU](UtilizationType::AICpu),
-    /// [Control CPU](UtilizationType::CtrlCpu),
-    /// [Memory Bandwidth](UtilizationType::MemoryBandwidth),
-    /// [HBM](UtilizationType::HBM),
-    /// [HBM Bandwidth](UtilizationType::HbmBandwidth),
+    /// - [AI Core](UtilizationType::AICore),
+    /// - [AI CPU](UtilizationType::AICpu),
+    /// - [Control CPU](UtilizationType::CtrlCpu),
+    /// - [Memory Bandwidth](UtilizationType::MemoryBandwidth),
+    /// - [HBM](UtilizationType::HBM),
+    /// - [HBM Bandwidth](UtilizationType::HbmBandwidth),
     ///
     /// # Returns
     /// utilization rate, unit: 1%
@@ -653,10 +653,10 @@ impl Chip<'_, '_> {
     ///     - [ManagerSensorId::AiCoreTotalPer] return the total pulse period of the AI core
     ///     - [ManagerSensorId::AiCoreElimPer] return the eliminable period of the AI core
     /// - Following target will return [SensorInfo::UShort]:
-    ///     - [ManagerSensorId::AiCoreBaseFrequency] return the base frequency of the AI core in MHz
-    ///     - [ManagerSensorId::NpuDdrFrequency] return the DDR frequency in MHz
+    ///     - [ManagerSensorId::AiCoreBaseFreq] return the base frequency of the AI core in MHz
+    ///     - [ManagerSensorId::NpuDdrFreq] return the DDR frequency in MHz
     /// - [ManagerSensorId::ThermalThreshold] return the thermal threshold([SensorInfo::Temp]), `temp[0]` is the temperature for frequency limit, `temp[1]` is the temperature for system reset
-    /// - [ManagerSensorId::NtcTemperature] return the temperature of the NTC sensor([SensorInfo::NTCTemp]), `ntc_tmp[0]` to `ntc_tmp[3]` are the temperature of the four NTC sensors
+    /// - [ManagerSensorId::NtcTemperature] return the temperature of the NTC sensor([SensorInfo::NtcTmp]), `ntc_tmp[0]` to `ntc_tmp[3]` are the temperature of the four NTC sensors
     /// - Following target will return [SensorInfo::Int]:
     ///     - [ManagerSensorId::FpTemperature] return the highest temperature of the optical module
     ///     - [ManagerSensorId::NDieTemperature] return the temperature of the N_DIE

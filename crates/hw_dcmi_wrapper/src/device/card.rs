@@ -18,7 +18,7 @@ impl Card<'_> {
     ///
     /// # Warning
     /// It is your responsibility to ensure that the card ID is valid
-    pub fn new_unchecked(dcmi: &DCMI, id: u32) -> Card {
+    pub fn new_unchecked(dcmi: &DCMI, id: u32) -> Card<'_> {
         Card { dcmi, id }
     }
 
@@ -33,7 +33,7 @@ impl Card<'_> {
     ///
     /// # Returns
     /// NPU management unit ID list
-    pub fn query_cards(dcmi: &DCMI) -> DCMIResult<Vec<Card>> {
+    pub fn query_cards(dcmi: &DCMI) -> DCMIResult<Vec<Card<'_>>> {
         let mut card_num = 0i32;
         let mut card_list = [-1i32; 64];
         let len = card_list.len() as i32;
@@ -77,10 +77,16 @@ impl Card<'_> {
     ///
     /// # Returns
     /// each element of return tuple means:
-    /// - Vec<Chip>: NPU chip list
-    /// - Option<Chip>: MCU chip, if there is no MCU chip, it will be None
-    /// - Option<Chip>: CPU chip, if there is no CPU chip, it will be None
-    pub fn get_chips(&self) -> DCMIResult<(Vec<Chip>, Option<Chip>, Option<Chip>)> {
+    /// - `Vec<Chip>`: NPU chip list
+    /// - `Option<Chip>`: MCU chip, if there is no MCU chip, it will be None
+    /// - `Option<Chip<'_>>`: CPU chip, if there is no CPU chip, it will be None
+    pub fn get_chips(
+        &self,
+    ) -> DCMIResult<(
+        Vec<Chip<'_, '_>>,
+        Option<Chip<'_, '_>>,
+        Option<Chip<'_, '_>>,
+    )> {
         let mut device_id_max = 0i32;
         let mut mcu_id = 0i32;
         let mut cpu_id = 0i32;
@@ -95,16 +101,15 @@ impl Card<'_> {
         );
 
         let npu_chips = (0..device_id_max)
-            .into_iter()
             .map(|id| Chip {
-                card: &self,
+                card: self,
                 id: id as u32,
                 unit_type: Some(UnitType::NPU),
             })
             .collect::<Vec<_>>();
         let mcu_chip = if mcu_id != -1 {
             Some(Chip {
-                card: &self,
+                card: self,
                 id: mcu_id as u32,
                 unit_type: Some(UnitType::MCU),
             })
@@ -113,7 +118,7 @@ impl Card<'_> {
         };
         let cpu_chip = if cpu_id != -1 {
             Some(Chip {
-                card: &self,
+                card: self,
                 id: cpu_id as u32,
                 unit_type: Some(UnitType::CPU),
             })

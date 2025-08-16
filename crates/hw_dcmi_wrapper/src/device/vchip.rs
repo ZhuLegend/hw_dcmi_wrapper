@@ -45,7 +45,7 @@ where
     ///
     /// # Returns
     /// chip
-    pub fn chip(&self) -> &Chip {
+    pub fn chip(&self) -> &Chip<'_, '_> {
         self.chip
     }
 

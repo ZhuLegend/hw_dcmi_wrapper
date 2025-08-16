@@ -37,7 +37,7 @@ impl From<ffi::dcmi_chip_info> for ChipInfo {
                 .to_str()
                 .unwrap()
                 .into(),
-            ai_core_count: chip_info.aicore_cnt as u32,
+            ai_core_count: chip_info.aicore_cnt,
         }
     }
 }
@@ -98,7 +98,7 @@ impl From<ffi::dcmi_pcie_info_all> for DomainPCIEInfo {
     fn from(pcie_info: ffi::dcmi_pcie_info_all) -> Self {
         DomainPCIEInfo {
             pcie_info: pcie_info.into(),
-            domain: pcie_info.domain as i32,
+            domain: pcie_info.domain,
         }
     }
 }
@@ -125,10 +125,10 @@ pub struct BoardInfo {
 impl From<ffi::dcmi_board_info> for BoardInfo {
     fn from(board_info: ffi::dcmi_board_info) -> Self {
         BoardInfo {
-            board_id: board_info.board_id as u32,
-            pcb_id: board_info.pcb_id as u32,
-            bom_id: board_info.bom_id as u32,
-            slot_id: board_info.slot_id as u32,
+            board_id: board_info.board_id,
+            pcb_id: board_info.pcb_id,
+            bom_id: board_info.bom_id,
+            slot_id: board_info.slot_id,
         }
     }
 }
@@ -238,8 +238,8 @@ pub struct AICoreInfo {
 impl From<ffi::dcmi_aicore_info> for AICoreInfo {
     fn from(ai_core_info: ffi::dcmi_aicore_info) -> Self {
         AICoreInfo {
-            frequency: ai_core_info.freq as u32,
-            current_frequency: ai_core_info.cur_freq as u32,
+            frequency: ai_core_info.freq,
+            current_frequency: ai_core_info.cur_freq,
         }
     }
 }
@@ -261,9 +261,9 @@ pub struct AICPUInfo {
 impl From<ffi::dcmi_aicpu_info> for AICPUInfo {
     fn from(aicpu_info: ffi::dcmi_aicpu_info) -> Self {
         AICPUInfo {
-            max_frequency: aicpu_info.max_freq as u32,
-            current_frequency: aicpu_info.cur_freq as u32,
-            aicpu_num: aicpu_info.aicpu_num as u32,
+            max_frequency: aicpu_info.max_freq,
+            current_frequency: aicpu_info.cur_freq,
+            aicpu_num: aicpu_info.aicpu_num,
             util_rate: aicpu_info.util_rate,
         }
     }
@@ -292,13 +292,13 @@ pub struct MemoryInfo {
 impl From<ffi::dcmi_get_memory_info_stru> for MemoryInfo {
     fn from(memory_info: ffi::dcmi_get_memory_info_stru) -> Self {
         MemoryInfo {
-            memory_size: memory_info.memory_size as u64,
-            memory_available: memory_info.memory_available as u64,
-            freq: memory_info.freq as u32,
-            huge_page_size: memory_info.hugepagesize as u64,
-            huge_pages_total: memory_info.hugepages_total as u64,
-            huge_pages_free: memory_info.hugepages_free as u64,
-            utilization: memory_info.utiliza as u32,
+            memory_size: memory_info.memory_size,
+            memory_available: memory_info.memory_available,
+            freq: memory_info.freq,
+            huge_page_size: memory_info.hugepagesize,
+            huge_pages_total: memory_info.hugepages_total,
+            huge_pages_free: memory_info.hugepages_free,
+            utilization: memory_info.utiliza,
         }
     }
 }
@@ -322,11 +322,11 @@ pub struct HBMInfo {
 impl From<ffi::dcmi_hbm_info> for HBMInfo {
     fn from(hbm_info: ffi::dcmi_hbm_info) -> Self {
         HBMInfo {
-            memory_size: hbm_info.memory_size as u64,
-            frequency: hbm_info.freq as u32,
-            memory_usage: hbm_info.memory_usage as u64,
-            temperature: hbm_info.temp as i32,
-            bandwidth_util_rate: hbm_info.bandwith_util_rate as u32,
+            memory_size: hbm_info.memory_size,
+            frequency: hbm_info.freq,
+            memory_usage: hbm_info.memory_usage,
+            temperature: hbm_info.temp,
+            bandwidth_util_rate: hbm_info.bandwith_util_rate,
         }
     }
 }
